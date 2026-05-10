@@ -569,6 +569,7 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <div class="container">
@@ -1321,30 +1322,95 @@
 
         function renderCalendar() {
             const container = document.getElementById('calendarView');
-            const tasksWithDeadlines = tasksData.filter(t => t.deadline);
-            
+
+            // Filter tasks with deadlines and sort by deadline (closest first)
+            const tasksWithDeadlines = tasksData
+                .filter(t => t.deadline)
+                .sort((a, b) => {
+                    const dateA = parseDeadlineDate(a.deadline);
+                    const dateB = parseDeadlineDate(b.deadline);
+                    return dateA - dateB;
+                });
+
+            if (tasksWithDeadlines.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">لا توجد مهام بمواعيد نهائية</p>';
+                return;
+            }
+
             container.innerHTML = `
                 <div style="overflow-x: auto;">
                     <table style="width: 100%; border-collapse: separate; border-spacing: 10px;">
-                        ${tasksWithDeadlines.map(task => `
+                        ${tasksWithDeadlines.map(task => {
+                            const daysNum = parseInt(task.daysRemaining);
+                            let daysColor = '#6c757d';
+                            let daysText = task.daysRemaining ? task.daysRemaining + ' يوم متبقي' : 'غير محدد';
+
+                            if (!isNaN(daysNum)) {
+                                if (daysNum < 0) {
+                                    daysColor = '#dc3545';
+                                    daysText = 'متأخر ' + Math.abs(daysNum) + ' يوم ⚠️';
+                                } else if (daysNum === 0) {
+                                    daysColor = '#dc3545';
+                                    daysText = 'اليوم! 🔥';
+                                } else if (daysNum <= 3) {
+                                    daysColor = '#fd7e14';
+                                    daysText = daysNum + ' يوم متبقي (عاجل!)';
+                                } else if (daysNum <= 7) {
+                                    daysColor = '#ffc107';
+                                }
+                            }
+
+                            return `
                             <tr style="background: #f8f9fa; border-radius: 8px;">
-                                <td style="padding: 15px; width: 150px;">
+                                <td style="padding: 15px; width: 150px; text-align: center;">
                                     <strong style="display: block; color: #667eea; font-size: 18px;">${task.deadline}</strong>
-                                    <small style="color: #6c757d;">${task.daysRemaining} يوم متبقي</small>
+                                    <small style="color: ${daysColor}; font-weight: 600;">${daysText}</small>
                                 </td>
                                 <td style="padding: 15px;">
-                                    <strong style="display: block; margin-bottom: 5px;">${task.name}</strong>
-                                    <div>${task.description}</div>
-                                    <div style="margin-top: 8px;">
-                                        <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
-                                        ${task.assignee ? `<span style="margin-right: 10px;">👤 ${task.assignee}</span>` : ''}
+                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">${task.name}</strong>
+                                    <div style="color: #495057; margin-bottom: 8px;">${task.description || '-'}</div>
+                                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                        <span class="priority-badge priority-${task.priority ? task.priority.toLowerCase() : 'low'}">${task.priority || 'Low'}</span>
+                                        ${task.category ? `<span style="background: #e9ecef; padding: 4px 12px; border-radius: 20px; font-size: 12px;">📂 ${task.category}</span>` : ''}
+                                        ${task.assignee ? `<span style="background: #d1ecf1; padding: 4px 12px; border-radius: 20px; font-size: 12px;">👤 ${task.assignee}</span>` : ''}
                                     </div>
                                 </td>
                             </tr>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </table>
                 </div>
             `;
+        }
+
+        // Helper function to parse deadline dates for proper sorting
+        function parseDeadlineDate(dateStr) {
+            if (!dateStr) return new Date(9999, 11, 31);
+
+            const parts = dateStr.split('-');
+            if (parts.length !== 2) return new Date(9999, 11, 31);
+
+            const months = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+
+            const day = parseInt(parts[0]);
+            const month = months[parts[1]];
+
+            if (isNaN(day) || month === undefined) return new Date(9999, 11, 31);
+
+            const currentYear = new Date().getFullYear();
+            let date = new Date(currentYear, month, day);
+
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+            if (date < sixMonthsAgo) {
+                date.setFullYear(currentYear + 1);
+            }
+
+            return date;
         }
 
         function addNewTask() {
