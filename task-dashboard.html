@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة المهام - نظام متكامل</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-box .number {
+            font-size: 28px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 18px 30px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #667eea;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.4s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Controls */
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Priority Badges */
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .priority-critical {
+            background: #dc3545;
+            color: white;
+        }
+
+        .priority-high {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .priority-medium {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .priority-low {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-pending {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Days Remaining */
+        .days-remaining {
+            font-weight: 700;
+        }
+
+        .days-remaining.overdue {
+            color: #dc3545;
+        }
+
+        .days-remaining.urgent {
+            color: #fd7e14;
+        }
+
+        .days-remaining.ok {
+            color: #28a745;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #dc3545;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            transition: width 0.5s;
+        }
+
+        /* Action Buttons in Table */
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(40,167,69,0.4);
+            z-index: 9999;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🎯 لوحة إدارة المهام</h1>
+                <p style="opacity: 0.9; margin-top: 5px;">نظام متكامل لإدارة ومتابعة المهام</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-box">
+                    <span class="number" id="totalTasks">0</span>
+                    <span class="label">إجمالي المهام</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="completedTasks">0</span>
+                    <span class="label">مكتملة</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="criticalTasks">0</span>
+                    <span class="label">حرجة</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="overdueTasks">0</span>
+                    <span class="label">متأخرة</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 لوحة التحكم</button>
+            <button class="tab" onclick="showTab('tasks')">📋 جدول المهام</button>
+            <button class="tab" onclick="showTab('analytics')">📈 التحليلات</button>
+            <button class="tab" onclick="showTab('calendar')">📅 التقويم</button>
+            <button class="tab" onclick="showTab('reports')">📑 التقارير</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section active">
+            <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                <button class="btn btn-primary" onclick="addNewTask()" style="font-size:16px; padding:12px 28px;">
+                    ➕ إضافة مهمة جديدة
+                </button>
+            </div>
+            <div class="dashboard-grid">
+                <!-- Priority Distribution Chart -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">⚠️</div>
+                        توزيع المهام حسب الأولوية
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Distribution Chart -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📂</div>
+                        توزيع المهام حسب الفئة
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Timeline Chart -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">⏰</div>
+                        الجدول الزمني للمهام
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Completion Progress -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">✅</div>
+                        معدل الإنجاز
+                    </h3>
+                    <div style="padding: 20px;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="completionProgress" style="width: 0%;">0%</div>
+                        </div>
+                        <p style="margin-top: 15px; text-align: center; color: #6c757d; font-size: 14px;" id="completionText"></p>
+                    </div>
+                </div>
+
+                <!-- Assigned Personnel Chart -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">👥</div>
+                        توزيع المهام على الأفراد
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="assigneeChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Upcoming Deadlines -->
+                <div class="card">
+                    <h3>
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">🔔</div>
+                        المواعيد النهائية القادمة
+                    </h3>
+                    <div id="upcomingDeadlines" style="max-height: 280px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Table Section -->
+        <div id="tasks" class="content-section">
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <label>🔍 البحث</label>
+                    <input type="text" id="searchInput" placeholder="ابحث في المهام...">
+                </div>
+                <div class="control-group">
+                    <label>📂 الفئة</label>
+                    <select id="categoryFilter">
+                        <option value="">جميع الفئات</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>⚠️ الأولوية</label>
+                    <select id="priorityFilter">
+                        <option value="">جميع الأولويات</option>
+                        <option value="Critical">حرجة</option>
+                        <option value="High">عالية</option>
+                        <option value="Medium">متوسطة</option>
+                        <option value="Low">منخفضة</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>👤 المكلف</label>
+                    <select id="assigneeFilter">
+                        <option value="">جميع المكلفين</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="addNewTask()">➕ إضافة مهمة جديدة</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table id="tasksTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">ر.م ▼</th>
+                            <th onclick="sortTable(1)">تاريخ الإدخال</th>
+                            <th onclick="sortTable(2)">المصدر</th>
+                            <th onclick="sortTable(3)">اسم المهمة</th>
+                            <th onclick="sortTable(4)">الوصف</th>
+                            <th onclick="sortTable(5)">الفئة</th>
+                            <th onclick="sortTable(6)">المكلّف</th>
+                            <th onclick="sortTable(7)">الموعد النهائي</th>
+                            <th onclick="sortTable(8)">أيام متبقية</th>
+                            <th onclick="sortTable(9)">الأولوية</th>
+                            <th onclick="sortTable(10)">الحالة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="content-section">
+            <div class="dashboard-grid">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3>📊 تحليل شامل للمهام</h3>
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="detailedAnalyticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Section -->
+        <div id="calendar" class="content-section">
+            <div class="card">
+                <h3>📅 تقويم المهام</h3>
+                <div id="calendarView"></div>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="content-section">
+            <div class="card">
+                <h3>📑 تصدير التقارير</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="exportToExcel()">📊 تصدير إلى Excel</button>
+                    <button class="btn btn-warning" onclick="exportToPDF()">📄 تصدير إلى PDF</button>
+                    <button class="btn btn-primary" onclick="printReport()">🖨️ طباعة</button>
+                    <button class="btn btn-danger" onclick="resetToDefaults()" style="margin-right:auto;">🔄 استعادة البيانات الأصلية</button>
+                </div>
+                <div id="reportPreview" style="margin-top: 30px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastNotification" class="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">تم حفظ المهمة بنجاح!</span>
+    </div>
+
+    <!-- Add/Edit Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">إضافة مهمة جديدة</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label>اسم المهمة *</label>
+                    <input type="text" id="taskName" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea id="taskDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>الفئة *</label>
+                    <select id="taskCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label>المكلف</label>
+                    <input type="text" id="taskAssignee">
+                </div>
+                <div class="form-group">
+                    <label>الموعد النهائي</label>
+                    <input type="date" id="taskDeadline">
+                </div>
+                <div class="form-group">
+                    <label>الأولوية *</label>
+                    <select id="taskPriority" required>
+                        <option value="Low">منخفضة</option>
+                        <option value="Medium">متوسطة</option>
+                        <option value="High">عالية</option>
+                        <option value="Critical">حرجة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>المصدر</label>
+                    <input type="text" id="taskSource">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">💾 حفظ</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal()">✖️ إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Default data
+        const defaultTasksData = [
+            {id: 1, date: "22-Apr", source: "Dr. badr", name: "Payroll and cash", description: "Dr. Enjy", category: "المالية", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
+            {id: 2, date: "23-Apr", source: "Dr. badr", name: "مكافأة عضو مجلس الإدارة د. إبراهيم فخر", description: "عن مدة ستة أشهر", category: "الاجتماعات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 3, date: "23-Apr", source: "Dr. badr", name: "عمل template من د. علي رفعت للمخاطبات", description: "للعرض يوم الأربعاء", category: "المكتب الفني", assignee: "د. أحمد علي", duration: "30", deadline: "23-May", daysRemaining: "12", priority: "Critical", status: ""},
+            {id: 4, date: "23-Apr", source: "Dr. badr", name: "موقف مشروع الأقصر م - مهندس حسن غالي", description: "", category: "الاجتماعات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 5, date: "23-Apr", source: "Dr. badr", name: "ملف متابعة الجوائز التي تهتم الهيئة للتقدم لها", description: "", category: "", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
+            {id: 6, date: "23-Apr", source: "Dr. badr", name: "Asset management and digital escalation", description: "نظام تتبع الأعطال", category: "التكنولوجيا", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Medium", status: ""},
+            {id: 7, date: "23-Apr", source: "Dr. badr", name: "نظام إدارة الأصول", description: "Asset management system", category: "التكنولوجيا", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Medium", status: ""},
+            {id: 8, date: "24-Apr", source: "Dr. badr", name: "تدريب مديري المستشفيات", description: "د. أمير التلواني", category: "التدريب", assignee: "Dr. Bader, Dr. Sherin", duration: "2", deadline: "26-Apr", daysRemaining: "-15", priority: "Critical", status: "completed"},
+            {id: 9, date: "26-Apr", source: "Dr. badr", name: "توفير لابتوبات بغرفة الطوارئ", description: "", category: "التحول الرقمي", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 10, date: "26-Apr", source: "Dr. badr", name: "متابعة حضور الأحد من المكتب", description: "تقرير لدكتور أمير - تنبيهات أسبوعية", category: "المكتب الفني", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: "Reminder every sunday"},
+            {id: 11, date: "26-Apr", source: "Dr. badr", name: "جمعية إسكان العاملين", description: "", category: "الموارد البشرية", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "Medium", status: ""},
+            {id: 12, date: "26-Apr", source: "Dr. badr", name: "تصور كامل للـ workflow الرقمي", description: "مهم جداً لمتابعة المهام", category: "التحول الرقمي", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 13, date: "26-Apr", source: "Dr. badr", name: "قاعدة بيانات إدارات الفروع والمستشفيات", description: "نظام معلومات شامل", category: "التحول الرقمي", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 14, date: "26-Apr", source: "Dr. badr", name: "تقييم مديري إدارات الفروع", description: "", category: "الموارد البشرية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 15, date: "27-Apr", source: "Dr. badr", name: "ملف الخطة الاستثمارية", description: "", category: "المالية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 16, date: "27-Apr", source: "Dr. badr", name: "ملف قوائم الانتظار", description: "", category: "انتظار", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 17, date: "27-Apr", source: "Dr. badr", name: "نسلم timeline of telemedicine", description: "", category: "Telemed", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 18, date: "27-Apr", source: "Dr. badr", name: "موقف مديري الفروع (جنوب سيناء - الأقصر)", description: "", category: "الموارد البشرية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 19, date: "27-Apr", source: "Dr. badr", name: "اللائحة المالية", description: "د. مصطفى صبري - اللائحة المالية", category: "المالية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 20, date: "27-Apr", source: "Dr. badr", name: "مذكرة عرض", description: "عرض تقديمي", category: "المكتب الفني", assignee: "د. أحمد علي", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 21, date: "27-Apr", source: "Dr. badr", name: "تقرير النصف السنوي الخاص بالهيئة", description: "", category: "التقارير", assignee: "د. عصام", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 22, date: "28-Apr", source: "Dr. badr", name: "وضع مقترح اللجنة المكلفة بتعيين مديري الإدارات", description: "بالتعاون مع د. سالي - ضرورة ملحة", category: "الموارد البشرية", assignee: "شئون الأفرع - الإدارة المركزية لشئون مكتب المدير التنفيذي", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 23, date: "29-Apr", source: "Dr. badr", name: "Meeting with Dr. Awad - Critical", description: "تكليفات مجلس الإدارة", category: "الاجتماعات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 24, date: "29-Apr", source: "Dr. badr", name: "تجهيز اجتماعات مجلس الإدارة", description: "من المحضر إلى التكليفات والمتابعة والعرض", category: "الاجتماعات", assignee: "د. أحمد علي", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
+            {id: 25, date: "04-May", source: "Dr. badr", name: "موقف قسم القلب - مستشفى السلام", description: "", category: "الموارد البشرية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 26, date: "05-May", source: "Dr. badr", name: "مسمى أكاديمية البحث", description: "تحديد المسمى الوظيفي", category: "", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Medium", status: ""},
+            {id: 27, date: "07-May", source: "Dr. badr", name: "لجنة القلب لاختيار رئيس القسم بالسويس", description: "برئاسة د حازم خميس وعضويه كل من د جميله نصر و د مارينا عكاشه", category: "الموارد البشرية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 28, date: "07-May", source: "Dr. badr", name: "حركة العربيات واعتذار التخصيص", description: "العربية الخاصة بدكتور بدر", category: "الشئون الإدارية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
+            {id: 29, date: "07-May", source: "Dr. badr", name: "لائحة الأجور", description: "تحديث اللائحة", category: "المالية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 30, date: "10-May", source: "Dr. badr", name: "متابعة ملف المبادرات", description: "المبادرات", category: "مبادرات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Medium", status: ""},
+            {id: 31, date: "10-May", source: "Dr. badr", name: "Health at a Glance (QALY)", description: "Quality-Adjusted Life Year metrics", category: "مؤتمرات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 32, date: "10-May", source: "Dr. badr", name: "التعاقد مع د. محمد عبد الله", description: "خبير في الأمانة الفنية - Head hunting", category: "الموارد البشرية", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "High", status: ""},
+            {id: 33, date: "10-May", source: "مذكرة 4508", name: "إعداد برامج تدريبية لرفع كفاءة المهندسين (21 مهندساً)", description: "", category: "الإدارة الهندسية - إدارة التدريب", assignee: "مدير أكاديمية التدريب + م. محمد فؤاد", duration: "30", deadline: "09-Jun", daysRemaining: "29", priority: "High", status: ""},
+            {id: 34, date: "10-May", source: "مذكرة 4508", name: "إعادة تأهيل شامل للمهندسين - التدريب", description: "", category: "الإدارة الهندسية - إدارة التدريب", assignee: "مدير أكاديمية التدريب + م. محمد فؤاد", duration: "60", deadline: "09-Jul", daysRemaining: "59", priority: "High", status: ""},
+            {id: 35, date: "10-May", source: "مذكرة 4508", name: "إعادة توزيع المهام على المهندسين (فوري)", description: "لسد العجز بالمنشآت", category: "الإدارة الهندسية", assignee: "م. محمد فؤاد", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "Critical", status: ""},
+            {id: 36, date: "10-May", source: "مذكرة 4508", name: "الالتزام بمعايير تقييم المهندسين طبقاً لـ KPIs", description: "إعادة التقييم الشامل", category: "الإدارة الهندسية", assignee: "م. محمد فؤاد", duration: "90", deadline: "08-Aug", daysRemaining: "89", priority: "High", status: ""},
+            {id: 37, date: "10-May", source: "مذكرة 4508", name: "استكمال إجراءات إسناد أعمال الصيانة (عاجل)", description: "", category: "الإدارة الهندسية والإدارات المعنية", assignee: "الإدارة الهندسة + الإدارة المالية + التعاقدات", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "Critical", status: ""},
+            {id: 38, date: "10-May", source: "مذكرة 4508", name: "إرجاء النظر تقييم المهندس محمد هيكل", description: "لحين الانتهاء من التحقيقات", category: "إدارة المراجعة الداخلي", assignee: "إدارة المراجعة الداخلي", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 39, date: "10-May", source: "مذكرة 4509", name: "التحقيق مع د. هدير مدير رضاء المنتفعين", description: "التحقيق بالفرع", category: "الشئون القانونية", assignee: "أ. محمد إبراهيم", duration: "7", deadline: "17-May", daysRemaining: "6", priority: "High", status: ""},
+            {id: 40, date: "10-May", source: "مذكرة 4509", name: "زيادة أعداد مسؤولي رضاء المنتفعين", description: "بالعيادات الخارجية", category: "فرع الإسماعيلية", assignee: "د. أحمد عبد اللطيف", duration: "7", deadline: "17-May", daysRemaining: "6", priority: "", status: ""},
+            {id: 41, date: "10-May", source: "مذكرة 4509", name: "متابعة حالة المواطن وائل جمال عبد العظيم", description: "تحويل إلى لجنة غير القادرين", category: "رضا المنتفعين", assignee: "د. أحمد دنقل + د. هدير", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "Medium", status: ""},
+            {id: 42, date: "10-May", source: "مذكرة 4509", name: "استكمال باقي الأعمال الخاصة بالمراتب والمفروشات والستائر", description: "جميع مستشفيات الهيئة - خلال شهر", category: "إدارة الإمداد والصيدلة", assignee: "د. حاتم رمضان + د. وائل عمران", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "Medium", status: ""},
+            {id: 43, date: "10-May", source: "مذكرة 4509", name: "تكليف إدارة الصيدلة بمراجعة مخزون الأدوية", description: "أدوية الروماتيزم والفيروسية الحرجة", category: "فرع الإسماعيلية", assignee: "د. محمد جبريل + د. أحمد عبد اللطيف", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 44, date: "10-May", source: "مذكرة 4509", name: "استكمال أعمال الصيانة الخاصة بالتجهيزات غير الطبية", description: "استكمال التجهيزات غير الطبية", category: "فرع الإسماعيلية", assignee: "د. محمد جبريل + د. أحمد عبد اللطيف", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 45, date: "10-May", source: "مذكرة 4509", name: "إنهاء أعمال شباك صرف الأدوية المستحدث", description: "", category: "فرع الإسماعيلية", assignee: "د. محمد جبريل + د. أحمد عبد اللطيف", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "", status: ""},
+            {id: 46, date: "10-May", source: "مذكرة 4509", name: "تعيين مدير للمراجعة الداخلية", description: "بالمجمع الطبي بالإسماعيلية", category: "إدارة المراجعة الداخلي", assignee: "د. محمود الشحات", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 47, date: "10-May", source: "مذكرة 4509", name: "التواصل مع عبد الحليم علي محمد", description: "تأخر إزالة الشرائح والمسامير - 01227636811", category: "إدارة المراجعة الداخلي", assignee: "د. محمود الشحات", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 48, date: "10-May", source: "مذكرة 4509", name: "متابعة حالة أ. منى (مريضة كبد)", description: "توحيد البرتكول العلاجي - 012756440880", category: "الإدارة العلاجية", assignee: "د. مصطفى شعبان + د. لمياء", duration: "2", deadline: "12-May", daysRemaining: "1", priority: "High", status: ""},
+            {id: 49, date: "10-May", source: "مذكرة 4509", name: "مراجعة المذكرات الخاصة بنواقص الأدوية", description: "إعداد مذكرة موجهة إلى مدير الإمداد", category: "إدارة الإمداد والصيدلة", assignee: "د. وائل عمران", duration: "7", deadline: "17-May", daysRemaining: "6", priority: "High", status: ""},
+            {id: 50, date: "10-May", source: "مذكرة 4509", name: "التاكد من الانتهاء من التكليفات", description: "", category: "مكتب رئيس الهيئة", assignee: "د. رأفت القاضي", duration: "14", deadline: "24-May", daysRemaining: "13", priority: "", status: ""}
+        ];
+
+        // Load from localStorage or use defaults
+        let tasksData = loadTasksFromStorage();
+
+        let charts = {};
+        let currentEditId = null;
+
+        // ===== localStorage helpers =====
+        function loadTasksFromStorage() {
+            try {
+                const saved = localStorage.getItem('tasksData_v1');
+                if (saved) return JSON.parse(saved);
+            } catch(e) {}
+            return JSON.parse(JSON.stringify(defaultTasksData));
+        }
+
+        function saveTasksToStorage() {
+            try {
+                localStorage.setItem('tasksData_v1', JSON.stringify(tasksData));
+            } catch(e) {}
+        }
+
+        // ===== Toast notification =====
+        let toastTimer = null;
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            icon.textContent = isError ? '❌' : '✅';
+            msg.textContent = message;
+            toast.classList.toggle('error', isError);
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize
+        window.onload = function() {
+            initializeApp();
+        };
+
+        function initializeApp() {
+            populateFilters();
+            updateStats();
+            renderTable();
+            initializeCharts();
+            setupEventListeners();
+        }
+
+        function populateFilters() {
+            // Categories
+            const categories = [...new Set(tasksData.map(t => t.category).filter(c => c))];
+            const categoryFilter = document.getElementById('categoryFilter');
+            const taskCategory = document.getElementById('taskCategory');
+            
+            categories.forEach(cat => {
+                const option1 = document.createElement('option');
+                option1.value = cat;
+                option1.textContent = cat;
+                categoryFilter.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = cat;
+                option2.textContent = cat;
+                taskCategory.appendChild(option2);
+            });
+
+            // Assignees
+            const assignees = [...new Set(tasksData.map(t => t.assignee).filter(a => a))];
+            const assigneeFilter = document.getElementById('assigneeFilter');
+            
+            assignees.forEach(assignee => {
+                const option = document.createElement('option');
+                option.value = assignee;
+                option.textContent = assignee;
+                assigneeFilter.appendChild(option);
+            });
+        }
+
+        function updateStats() {
+            const total = tasksData.length;
+            const completed = tasksData.filter(t => t.status === 'completed').length;
+            const critical = tasksData.filter(t => t.priority === 'Critical').length;
+            const overdue = tasksData.filter(t => {
+                const days = parseInt(t.daysRemaining);
+                return !isNaN(days) && days < 0;
+            }).length;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('criticalTasks').textContent = critical;
+            document.getElementById('overdueTasks').textContent = overdue;
+
+            // Completion Progress
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            const progressFill = document.getElementById('completionProgress');
+            progressFill.style.width = completionRate + '%';
+            progressFill.textContent = completionRate + '%';
+            
+            document.getElementById('completionText').textContent = 
+                `تم إنجاز ${completed} من ${total} مهمة`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tasksTableBody');
+            tbody.innerHTML = '';
+
+            let filteredTasks = tasksData;
+
+            // Apply filters
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const assigneeFilter = document.getElementById('assigneeFilter').value;
+
+            if (searchTerm) {
+                filteredTasks = filteredTasks.filter(task => 
+                    task.name.toLowerCase().includes(searchTerm) ||
+                    task.description.toLowerCase().includes(searchTerm) ||
+                    task.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (categoryFilter) {
+                filteredTasks = filteredTasks.filter(task => task.category === categoryFilter);
+            }
+
+            if (priorityFilter) {
+                filteredTasks = filteredTasks.filter(task => task.priority === priorityFilter);
+            }
+
+            if (assigneeFilter) {
+                filteredTasks = filteredTasks.filter(task => task.assignee === assigneeFilter);
+            }
+
+            filteredTasks.forEach(task => {
+                const tr = document.createElement('tr');
+                
+                let daysClass = '';
+                const days = parseInt(task.daysRemaining);
+                if (!isNaN(days)) {
+                    if (days < 0) daysClass = 'overdue';
+                    else if (days <= 7) daysClass = 'urgent';
+                    else daysClass = 'ok';
+                }
+
+                tr.innerHTML = `
+                    <td>${task.id}</td>
+                    <td>${task.date}</td>
+                    <td>${task.source}</td>
+                    <td><strong>${task.name}</strong></td>
+                    <td>${task.description}</td>
+                    <td>${task.category}</td>
+                    <td>${task.assignee}</td>
+                    <td>${task.deadline}</td>
+                    <td class="days-remaining ${daysClass}">${task.daysRemaining}</td>
+                    <td><span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span></td>
+                    <td>${task.status ? '<span class="status-badge status-' + (task.status === 'completed' ? 'completed' : 'pending') + '">' + task.status + '</span>' : ''}</td>
+                    <td class="action-btns">
+                        <button class="action-btn btn-success" onclick="toggleStatus(${task.id})" title="${task.status === 'completed' ? 'إلغاء الإكمال' : 'تحديد كمكتملة'}">
+                            ${task.status === 'completed' ? '↩️' : '✔️'}
+                        </button>
+                        <button class="action-btn btn-primary" onclick="editTask(${task.id})" title="تعديل">✏️</button>
+                        <button class="action-btn btn-danger" onclick="deleteTask(${task.id})" title="حذف">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            renderUpcomingDeadlines();
+        }
+
+        function renderUpcomingDeadlines() {
+            const container = document.getElementById('upcomingDeadlines');
+            const tasksWithDeadlines = tasksData
+                .filter(t => t.deadline && t.daysRemaining && parseInt(t.daysRemaining) >= 0)
+                .sort((a, b) => parseInt(a.daysRemaining) - parseInt(b.daysRemaining))
+                .slice(0, 5);
+
+            if (tasksWithDeadlines.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 20px;">لا توجد مواعيد نهائية قادمة</p>';
+                return;
+            }
+
+            container.innerHTML = tasksWithDeadlines.map(task => `
+                <div style="padding: 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="display: block; margin-bottom: 5px;">${task.name}</strong>
+                        <small style="color: #6c757d;">${task.deadline}</small>
+                    </div>
+                    <div style="text-align: left;">
+                        <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
+                        <div style="margin-top: 5px; font-size: 12px; color: #6c757d;">
+                            ${task.daysRemaining} يوم متبقي
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initializeCharts() {
+            // Priority Distribution
+            const priorityCounts = {
+                'Critical': tasksData.filter(t => t.priority === 'Critical').length,
+                'High': tasksData.filter(t => t.priority === 'High').length,
+                'Medium': tasksData.filter(t => t.priority === 'Medium').length,
+                'Low': tasksData.filter(t => t.priority === 'Low').length
+            };
+
+            charts.priority = new Chart(document.getElementById('priorityChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['حرجة', 'عالية', 'متوسطة', 'منخفضة'],
+                    datasets: [{
+                        data: [priorityCounts.Critical, priorityCounts.High, priorityCounts.Medium, priorityCounts.Low],
+                        backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#6c757d']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Category Distribution
+            const categories = {};
+            tasksData.forEach(t => {
+                if (t.category) {
+                    categories[t.category] = (categories[t.category] || 0) + 1;
+                }
+            });
+
+            const topCategories = Object.entries(categories)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            charts.category = new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: topCategories.map(c => c[0]),
+                    datasets: [{
+                        label: 'عدد المهام',
+                        data: topCategories.map(c => c[1]),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Timeline Chart
+            const dates = {};
+            tasksData.forEach(t => {
+                if (t.date) {
+                    dates[t.date] = (dates[t.date] || 0) + 1;
+                }
+            });
+
+            const sortedDates = Object.entries(dates).sort((a, b) => {
+                return new Date(a[0]) - new Date(b[0]);
+            });
+
+            charts.timeline = new Chart(document.getElementById('timelineChart'), {
+                type: 'line',
+                data: {
+                    labels: sortedDates.map(d => d[0]),
+                    datasets: [{
+                        label: 'عدد المهام المدخلة',
+                        data: sortedDates.map(d => d[1]),
+                        borderColor: 'rgb(102, 126, 234)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Assignee Distribution
+            const assignees = {};
+            tasksData.forEach(t => {
+                if (t.assignee) {
+                    const names = t.assignee.split(/[,+]/).map(n => n.trim());
+                    names.forEach(name => {
+                        assignees[name] = (assignees[name] || 0) + 1;
+                    });
+                }
+            });
+
+            const topAssignees = Object.entries(assignees)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            charts.assignee = new Chart(document.getElementById('assigneeChart'), {
+                type: 'bar',
+                data: {
+                    labels: topAssignees.map(a => a[0]),
+                    datasets: [{
+                        label: 'عدد المهام',
+                        data: topAssignees.map(a => a[1]),
+                        backgroundColor: 'rgba(118, 75, 162, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Detailed Analytics Chart
+            charts.detailed = new Chart(document.getElementById('detailedAnalyticsChart'), {
+                type: 'bar',
+                data: {
+                    labels: topCategories.map(c => c[0]),
+                    datasets: [{
+                        label: 'حرجة',
+                        data: topCategories.map(c => {
+                            return tasksData.filter(t => t.category === c[0] && t.priority === 'Critical').length;
+                        }),
+                        backgroundColor: '#dc3545'
+                    }, {
+                        label: 'عالية',
+                        data: topCategories.map(c => {
+                            return tasksData.filter(t => t.category === c[0] && t.priority === 'High').length;
+                        }),
+                        backgroundColor: '#fd7e14'
+                    }, {
+                        label: 'متوسطة',
+                        data: topCategories.map(c => {
+                            return tasksData.filter(t => t.category === c[0] && t.priority === 'Medium').length;
+                        }),
+                        backgroundColor: '#ffc107'
+                    }, {
+                        label: 'منخفضة',
+                        data: topCategories.map(c => {
+                            return tasksData.filter(t => t.category === c[0] && t.priority === 'Low').length;
+                        }),
+                        backgroundColor: '#6c757d'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', renderTable);
+            document.getElementById('categoryFilter').addEventListener('change', renderTable);
+            document.getElementById('priorityFilter').addEventListener('change', renderTable);
+            document.getElementById('assigneeFilter').addEventListener('change', renderTable);
+
+            document.getElementById('taskForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveTask();
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Remove active from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active to clicked tab
+            event.target.classList.add('active');
+
+            // Special handling for calendar
+            if (tabName === 'calendar') {
+                renderCalendar();
+            }
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarView');
+            const tasksWithDeadlines = tasksData.filter(t => t.deadline);
+            
+            container.innerHTML = `
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 10px;">
+                        ${tasksWithDeadlines.map(task => `
+                            <tr style="background: #f8f9fa; border-radius: 8px;">
+                                <td style="padding: 15px; width: 150px;">
+                                    <strong style="display: block; color: #667eea; font-size: 18px;">${task.deadline}</strong>
+                                    <small style="color: #6c757d;">${task.daysRemaining} يوم متبقي</small>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <strong style="display: block; margin-bottom: 5px;">${task.name}</strong>
+                                    <div>${task.description}</div>
+                                    <div style="margin-top: 8px;">
+                                        <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
+                                        ${task.assignee ? `<span style="margin-right: 10px;">👤 ${task.assignee}</span>` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+            `;
+        }
+
+        function addNewTask() {
+            currentEditId = null;
+            document.getElementById('modalTitle').textContent = 'إضافة مهمة جديدة';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function editTask(id) {
+            currentEditId = id;
+            const task = tasksData.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('modalTitle').textContent = 'تعديل المهمة';
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskDescription').value = task.description;
+            document.getElementById('taskCategory').value = task.category;
+            document.getElementById('taskAssignee').value = task.assignee;
+            document.getElementById('taskDeadline').value = task.deadline ? convertDateToISO(task.deadline) : '';
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskSource').value = task.source;
+
+            document.getElementById('taskModal').classList.add('active');
+        }
+
+        function deleteTask(id) {
+            if (confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+                tasksData = tasksData.filter(t => t.id !== id);
+                saveTasksToStorage();
+                updateStats();
+                renderTable();
+                updateCharts();
+                showToast('تم حذف المهمة', true);
+            }
+        }
+
+        function saveTask() {
+            const name = document.getElementById('taskName').value;
+            const description = document.getElementById('taskDescription').value;
+            const category = document.getElementById('taskCategory').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const priority = document.getElementById('taskPriority').value;
+            const source = document.getElementById('taskSource').value;
+
+            if (currentEditId) {
+                // Edit existing task
+                const task = tasksData.find(t => t.id === currentEditId);
+                if (task) {
+                    task.name = name;
+                    task.description = description;
+                    task.category = category;
+                    task.assignee = assignee;
+                    task.deadline = deadline ? formatDate(deadline) : '';
+                    task.priority = priority;
+                    task.source = source;
+                    task.daysRemaining = deadline ? calculateDaysRemaining(deadline) : '';
+                }
+            } else {
+                // Add new task
+                const newId = Math.max(...tasksData.map(t => t.id)) + 1;
+                tasksData.push({
+                    id: newId,
+                    date: new Date().toLocaleDateString('en-GB', {day: '2-digit', month: 'short'}),
+                    source: source,
+                    name: name,
+                    description: description,
+                    category: category,
+                    assignee: assignee,
+                    duration: 'N/A',
+                    deadline: deadline ? formatDate(deadline) : '',
+                    daysRemaining: deadline ? calculateDaysRemaining(deadline) : '',
+                    priority: priority,
+                    status: ''
+                });
+            }
+
+            closeModal();
+            saveTasksToStorage();
+            updateStats();
+            renderTable();
+            updateCharts();
+            populateFilters();
+            showToast(currentEditId ? 'تم تعديل المهمة بنجاح! ✏️' : 'تمت إضافة المهمة بنجاح! 🎉');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        function toggleStatus(id) {
+            const task = tasksData.find(t => t.id === id);
+            if (!task) return;
+            task.status = task.status === 'completed' ? '' : 'completed';
+            saveTasksToStorage();
+            updateStats();
+            renderTable();
+            updateCharts();
+            showToast(task.status === 'completed' ? 'تم تحديد المهمة كمكتملة ✅' : 'تم إلغاء حالة الإكمال');
+        }
+
+        function resetToDefaults() {
+            if (confirm('هل أنت متأكد؟ سيتم حذف جميع التعديلات والعودة للبيانات الأصلية.')) {
+                tasksData = JSON.parse(JSON.stringify(defaultTasksData));
+                saveTasksToStorage();
+                updateStats();
+                renderTable();
+                updateCharts();
+                populateFilters();
+                showToast('تم استعادة البيانات الأصلية');
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDate();
+            const month = date.toLocaleDateString('en-US', {month: 'short'});
+            return `${day}-${month}`;
+        }
+
+        function convertDateToISO(dateStr) {
+            // Convert "23-May" to "2024-05-23"
+            const parts = dateStr.split('-');
+            if (parts.length !== 2) return '';
+            
+            const months = {
+                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+            };
+            
+            const day = parts[0].padStart(2, '0');
+            const month = months[parts[1]];
+            return month ? `2024-${month}-${day}` : '';
+        }
+
+        function calculateDaysRemaining(deadline) {
+            const today = new Date();
+            const deadlineDate = new Date(deadline);
+            const diffTime = deadlineDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays.toString();
+        }
+
+        function updateCharts() {
+            // Destroy existing charts
+            Object.values(charts).forEach(chart => chart.destroy());
+            // Reinitialize
+            initializeCharts();
+        }
+
+        function sortTable(columnIndex) {
+            // Simple sorting implementation
+            const table = document.getElementById('tasksTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent;
+                const bText = b.cells[columnIndex].textContent;
+                return aText.localeCompare(bText, 'ar');
+            });
+            
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ['ر.م', 'تاريخ الإدخال', 'المصدر', 'اسم المهمة', 'الوصف', 'الفئة', 'المكلف', 'الموعد النهائي', 'أيام متبقية', 'الأولوية', 'الحالة']
+            ];
+            
+            tasksData.forEach(task => {
+                ws_data.push([
+                    task.id,
+                    task.date,
+                    task.source,
+                    task.name,
+                    task.description,
+                    task.category,
+                    task.assignee,
+                    task.deadline,
+                    task.daysRemaining,
+                    task.priority,
+                    task.status
+                ]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, 'المهام');
+            XLSX.writeFile(wb, 'تقرير_المهام.xlsx');
+        }
+
+        function exportToPDF() {
+            alert('سيتم تصدير التقرير إلى PDF. هذه الميزة تحتاج مكتبة إضافية للتنفيذ الكامل.');
+        }
+
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
