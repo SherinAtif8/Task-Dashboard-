@@ -392,6 +392,69 @@
             color: #28a745;
         }
 
+        /* Deadline styling */
+        .deadline-cell {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .deadline-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .deadline-overdue {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .deadline-today {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+            animation: pulse-warning 2s infinite;
+        }
+
+        .deadline-urgent {
+            background: #ffedd5;
+            color: #ea580c;
+            border: 1px solid #fed7aa;
+        }
+
+        .deadline-soon {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fde047;
+        }
+
+        .deadline-ok {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .deadline-none {
+            background: #f3f4f6;
+            color: #9ca3af;
+            border: 1px solid #e5e7eb;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .deadline-icon {
+            font-size: 14px;
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -1400,11 +1463,40 @@
                 const tr = document.createElement('tr');
                 
                 let daysClass = '';
+                let deadlineClass = 'deadline-none';
+                let deadlineIcon = '📅';
+                let deadlineText = task.deadline || 'غير محدد';
+
                 const days = parseInt(task.daysRemaining);
                 if (!isNaN(days)) {
-                    if (days < 0) daysClass = 'overdue';
-                    else if (days <= 7) daysClass = 'urgent';
-                    else daysClass = 'ok';
+                    if (days < 0) {
+                        daysClass = 'overdue';
+                        deadlineClass = 'deadline-overdue';
+                        deadlineIcon = '⚠️';
+                        deadlineText = task.deadline + ' (متأخر ' + Math.abs(days) + ' يوم)';
+                    } else if (days === 0) {
+                        daysClass = 'urgent';
+                        deadlineClass = 'deadline-today';
+                        deadlineIcon = '🔥';
+                        deadlineText = task.deadline + ' (اليوم!)';
+                    } else if (days <= 3) {
+                        daysClass = 'urgent';
+                        deadlineClass = 'deadline-urgent';
+                        deadlineIcon = '⏰';
+                        deadlineText = task.deadline + ' (' + days + ' أيام)';
+                    } else if (days <= 7) {
+                        daysClass = 'urgent';
+                        deadlineClass = 'deadline-soon';
+                        deadlineIcon = '📆';
+                        deadlineText = task.deadline + ' (' + days + ' أيام)';
+                    } else {
+                        daysClass = 'ok';
+                        deadlineClass = 'deadline-ok';
+                        deadlineIcon = '✅';
+                        deadlineText = task.deadline + ' (' + days + ' يوم)';
+                    }
+                } else if (task.deadline) {
+                    deadlineText = task.deadline;
                 }
 
                 tr.innerHTML = `
@@ -1415,7 +1507,7 @@
                     <td>${task.description}</td>
                     <td>${task.category}</td>
                     <td>${task.assignee}</td>
-                    <td>${task.deadline}</td>
+                    <td class="deadline-cell"><span class="deadline-badge ${deadlineClass}"><span class="deadline-icon">${deadlineIcon}</span> ${deadlineText}</span></td>
                     <td class="days-remaining ${daysClass}">${task.daysRemaining}</td>
                     <td><span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span></td>
                     <td>${task.status ? '<span class="status-badge status-' + (task.status === 'completed' ? 'completed' : 'pending') + '">' + task.status + '</span>' : ''}</td>
@@ -1445,20 +1537,42 @@
                 return;
             }
 
-            container.innerHTML = tasksWithDeadlines.map(task => `
+            container.innerHTML = tasksWithDeadlines.map(task => {
+                const days = parseInt(task.daysRemaining);
+                let dlClass = 'deadline-ok';
+                let dlIcon = '✅';
+                let dlText = task.daysRemaining + ' يوم متبقي';
+
+                if (days === 0) {
+                    dlClass = 'deadline-today';
+                    dlIcon = '🔥';
+                    dlText = 'اليوم!';
+                } else if (days <= 3) {
+                    dlClass = 'deadline-urgent';
+                    dlIcon = '⏰';
+                    dlText = days + ' أيام (عاجل!)';
+                } else if (days <= 7) {
+                    dlClass = 'deadline-soon';
+                    dlIcon = '📆';
+                }
+
+                return `
                 <div style="padding: 12px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <strong style="display: block; margin-bottom: 5px;">${task.name}</strong>
-                        <small style="color: #6c757d;">${task.deadline}</small>
+                        <span class="deadline-badge ${dlClass}" style="font-size: 11px; padding: 3px 8px;">
+                            <span class="deadline-icon">${dlIcon}</span> ${task.deadline}
+                        </span>
                     </div>
                     <div style="text-align: left;">
                         <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
                         <div style="margin-top: 5px; font-size: 12px; color: #6c757d;">
-                            ${task.daysRemaining} يوم متبقي
+                            ${dlText}
                         </div>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function initializeCharts() {
