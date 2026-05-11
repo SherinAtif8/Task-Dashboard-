@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة إدارة المهام - نظام متكامل</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -14,8 +17,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -31,14 +34,15 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #0d2137 0%, #1e3a5f 50%, #2d5a87 100%);
             color: white;
-            padding: 30px 40px;
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 20px;
+            border-bottom: 3px solid #00a896;
         }
 
         .header h1 {
@@ -53,16 +57,28 @@
 
         .stat-box {
             text-align: center;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
         .stat-box .number {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 800;
             display: block;
+            background: linear-gradient(135deg, #fff 0%, #00a896 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .stat-box .label {
@@ -93,12 +109,12 @@
         }
 
         .tab:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            background: rgba(0, 168, 150, 0.1);
+            color: #00a896;
         }
 
         .tab.active {
-            color: #667eea;
+            color: #00a896;
             background: white;
         }
 
@@ -109,7 +125,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: #667eea;
+            background: #00a896;
         }
 
         /* Content Sections */
@@ -138,10 +154,11 @@
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0,0,0,0.04);
         }
 
         .card:hover {
@@ -213,8 +230,8 @@
         input[type="text"]:focus,
         select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #00a896;
+            box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.1);
         }
 
         /* Buttons */
@@ -232,13 +249,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #00a896 0%, #028090 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 168, 150, 0.4);
         }
 
         .btn-success {
@@ -274,7 +291,7 @@
         }
 
         thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
             color: white;
         }
 
@@ -295,9 +312,10 @@
         }
 
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         tbody tr {
@@ -473,7 +491,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #00a896 0%, #028090 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -556,7 +574,7 @@
         /* Loading Spinner */
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border-top: 4px solid #00a896;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -568,6 +586,179 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Calendar Grid Styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 12px 5px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #1e3a5f;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+
+        .calendar-day-header.weekend {
+            color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            cursor: default;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 60px;
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .calendar-day.has-task {
+            cursor: pointer;
+            border-color: #00a896;
+            background: linear-gradient(135deg, #00a896 0%, #028090 100%);
+            color: white;
+        }
+
+        .calendar-day.has-task:hover {
+            box-shadow: 0 5px 20px rgba(0, 168, 150, 0.4);
+        }
+
+        .calendar-day.has-high {
+            background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+            border-color: #fd7e14;
+        }
+
+        .calendar-day.has-critical {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-color: #dc3545;
+            animation: pulse 2s infinite;
+        }
+
+        .calendar-day.today {
+            box-shadow: 0 0 0 3px #1e3a5f;
+        }
+
+        .calendar-day .day-number {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .calendar-day .task-count {
+            font-size: 11px;
+            margin-top: 4px;
+            opacity: 0.9;
+        }
+
+        .calendar-day .today-badge {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            font-size: 10px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Logo animation */
+        .header img {
+            transition: transform 0.3s ease;
+        }
+
+        .header img:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Enhanced Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            font-weight: 700;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        th {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .btn {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .priority-badge, .status-badge {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .days-remaining {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Enhanced Header Stats */
+        .stat-box .label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Enhanced focus states */
+        .tab {
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Form elements */
+        input, select, textarea {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* Toast notification */
+        .toast {
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+        }
     </style>
 <base target="_blank">
 </head>
@@ -575,9 +766,20 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div>
-                <h1>🎯 لوحة إدارة المهام</h1>
-                <p style="opacity: 0.9; margin-top: 5px;">نظام متكامل لإدارة ومتابعة المهام</p>
+            <div style="display: flex; align-items: center; gap: 25px;">
+                <div style="position: relative;">
+                    <img src="https://www.shorouknews.com/uploadedimages/Other/original/%D9%84%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D8%A9%20%D9%84%D9%84%D8%B1%D8%B9%D8%A7%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B5%D8%AD%D9%8A%D8%A9.jpg" 
+                         alt="الهيئة العامة للرعاية الصحية" 
+                         style="width: 120px; height: 120px; object-fit: contain; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); border: 3px solid rgba(255,255,255,0.3);">
+                    <div style="position: absolute; bottom: -5px; right: -5px; background: #00a896; color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">رسمي</div>
+                </div>
+                <div>
+                    <h1 style="font-size: 28px; margin-bottom: 8px;">🎯 لوحة إدارة المهام</h1>
+                    <p style="opacity: 0.95; margin-top: 5px; font-size: 15px; line-height: 1.6;">
+                        <strong style="color: #00a896;">الهيئة العامة للرعاية الصحية</strong><br>
+                        <span style="font-size: 13px; opacity: 0.85;">نظام متكامل لإدارة ومتابعة المهام والتكليفات</span>
+                    </p>
+                </div>
             </div>
             <div class="header-stats">
                 <div class="stat-box">
@@ -761,7 +963,21 @@
         <!-- Calendar Section -->
         <div id="calendar" class="content-section">
             <div class="card">
-                <h3>📅 تقويم المهام</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h3>📅 تقويم المهام</h3>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <select id="calendarMonthFilter" onchange="renderCalendar()" style="width: auto; min-width: 150px;">
+                            <option value="all">📋 كل الشهور</option>
+                            <option value="current">📅 هذا الشهر</option>
+                            <option value="next">📅 الشهر القادم</option>
+                        </select>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-primary" onclick="changeCalendarMonth(-1)" style="padding: 8px 15px;">◀ الشهر السابق</button>
+                            <span id="currentCalendarMonth" style="padding: 10px 20px; background: #e9ecef; border-radius: 8px; font-weight: 600; min-width: 150px; text-align: center;"></span>
+                            <button class="btn btn-primary" onclick="changeCalendarMonth(1)" style="padding: 8px 15px;">الشهر التالي ▶</button>
+                        </div>
+                    </div>
+                </div>
                 <div id="calendarView"></div>
             </div>
         </div>
@@ -896,6 +1112,16 @@
 
         let charts = {};
         let currentEditId = null;
+
+        // Calendar state
+        let currentCalendarDate = new Date();
+        let calendarViewMode = 'list'; // 'list' or 'month'
+
+        // Month names in Arabic
+        const monthNames = [
+            'يناير', 'فبراير', 'مارس', 'إبريل', 'مايو', 'يونيو',
+            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+        ];
 
         // ===== localStorage helpers =====
         function loadTasksFromStorage() {
@@ -1322,49 +1548,82 @@
 
         function renderCalendar() {
             const container = document.getElementById('calendarView');
+            const filterValue = document.getElementById('calendarMonthFilter')?.value || 'all';
 
-            // Filter tasks with deadlines and sort by deadline (closest first)
-            const tasksWithDeadlines = tasksData
-                .filter(t => t.deadline)
-                .sort((a, b) => {
-                    const dateA = parseDeadlineDate(a.deadline);
-                    const dateB = parseDeadlineDate(b.deadline);
-                    return dateA - dateB;
-                });
+            // Update month display
+            const monthDisplay = document.getElementById('currentCalendarMonth');
+            if (monthDisplay) {
+                monthDisplay.textContent = monthNames[currentCalendarDate.getMonth()] + ' ' + currentCalendarDate.getFullYear();
+            }
 
-            if (tasksWithDeadlines.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px;">لا توجد مهام بمواعيد نهائية</p>';
+            // Get tasks based on filter
+            let filteredTasks = tasksData.filter(t => t.deadline);
+
+            if (filterValue === 'current') {
+                const now = new Date();
+                filteredTasks = filteredTasks.filter(t => isTaskInMonth(t, now.getMonth(), now.getFullYear()));
+            } else if (filterValue === 'next') {
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                filteredTasks = filteredTasks.filter(t => isTaskInMonth(t, nextMonth.getMonth(), nextMonth.getFullYear()));
+            } else if (filterValue === 'month') {
+                filteredTasks = filteredTasks.filter(t => isTaskInMonth(t, currentCalendarDate.getMonth(), currentCalendarDate.getFullYear()));
+            }
+
+            // Sort by daysRemaining
+            filteredTasks.sort((a, b) => {
+                const daysA = parseInt(a.daysRemaining) || 9999;
+                const daysB = parseInt(b.daysRemaining) || 9999;
+                return daysA - daysB;
+            });
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6c757d; padding: 40px; font-size: 16px;">لا توجد مهام في الفترة المحددة</p>';
                 return;
             }
 
+            // Render monthly grid + list
             container.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    ${renderMonthlyGrid(currentCalendarDate.getMonth(), currentCalendarDate.getFullYear(), filteredTasks)}
+                </div>
                 <div style="overflow-x: auto;">
+                    <h4 style="margin-bottom: 15px; color: #1e3a5f; border-bottom: 2px solid #00a896; padding-bottom: 10px;">
+                        📋 قائمة المهام (${filteredTasks.length})
+                    </h4>
                     <table style="width: 100%; border-collapse: separate; border-spacing: 10px;">
-                        ${tasksWithDeadlines.map(task => {
+                        ${filteredTasks.map(task => {
                             const daysNum = parseInt(task.daysRemaining);
                             let daysColor = '#6c757d';
                             let daysText = task.daysRemaining ? task.daysRemaining + ' يوم متبقي' : 'غير محدد';
+                            let rowStyle = 'background: #f8f9fa;';
 
                             if (!isNaN(daysNum)) {
                                 if (daysNum < 0) {
                                     daysColor = '#dc3545';
                                     daysText = 'متأخر ' + Math.abs(daysNum) + ' يوم ⚠️';
+                                    rowStyle = 'background: #fff5f5; border-right: 4px solid #dc3545;';
                                 } else if (daysNum === 0) {
                                     daysColor = '#dc3545';
                                     daysText = 'اليوم! 🔥';
+                                    rowStyle = 'background: #fff5f5; border-right: 4px solid #dc3545;';
                                 } else if (daysNum <= 3) {
                                     daysColor = '#fd7e14';
                                     daysText = daysNum + ' يوم متبقي (عاجل!)';
+                                    rowStyle = 'background: #fff8f0; border-right: 4px solid #fd7e14;';
                                 } else if (daysNum <= 7) {
                                     daysColor = '#ffc107';
+                                    rowStyle = 'background: #fffdf5; border-right: 4px solid #ffc107;';
+                                } else {
+                                    rowStyle = 'background: #f0fff4; border-right: 4px solid #28a745;';
                                 }
                             }
 
                             return `
-                            <tr style="background: #f8f9fa; border-radius: 8px;">
+                            <tr style="${rowStyle} border-radius: 8px;">
                                 <td style="padding: 15px; width: 150px; text-align: center;">
-                                    <strong style="display: block; color: #667eea; font-size: 18px;">${task.deadline}</strong>
-                                    <small style="color: ${daysColor}; font-weight: 600;">${daysText}</small>
+                                    <strong style="display: block; color: #00a896; font-size: 18px;">${task.deadline}</strong>
+                                    <small style="color: ${daysColor}; font-weight: 600; font-size: 13px;">${daysText}</small>
                                 </td>
                                 <td style="padding: 15px;">
                                     <strong style="display: block; margin-bottom: 5px; font-size: 16px;">${task.name}</strong>
@@ -1383,34 +1642,85 @@
             `;
         }
 
-        // Helper function to parse deadline dates for proper sorting
-        function parseDeadlineDate(dateStr) {
-            if (!dateStr) return new Date(9999, 11, 31);
-
-            const parts = dateStr.split('-');
-            if (parts.length !== 2) return new Date(9999, 11, 31);
+        function isTaskInMonth(task, month, year) {
+            if (!task.deadline) return false;
+            const parts = task.deadline.split('-');
+            if (parts.length !== 2) return false;
 
             const months = {
                 'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
                 'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
             };
 
-            const day = parseInt(parts[0]);
-            const month = months[parts[1]];
+            const taskMonth = months[parts[1]];
+            return taskMonth === month;
+        }
 
-            if (isNaN(day) || month === undefined) return new Date(9999, 11, 31);
+        function changeCalendarMonth(delta) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+            renderCalendar();
+        }
 
-            const currentYear = new Date().getFullYear();
-            let date = new Date(currentYear, month, day);
+        function renderMonthlyGrid(month, year, tasks) {
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const firstDay = new Date(year, month, 1).getDay();
 
-            const sixMonthsAgo = new Date();
-            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            // Egyptian calendar: Saturday = first column (0), Friday = last column (6)
+            // JavaScript getDay(): Sunday=0, Monday=1, ..., Saturday=6
+            // We need: Saturday=0, Sunday=1, ..., Friday=6
+            const adjustedFirstDay = (firstDay + 1) % 7;
 
-            if (date < sixMonthsAgo) {
-                date.setFullYear(currentYear + 1);
+            let html = `
+                <div class="calendar-grid">
+                    <div class="calendar-day-header weekend">السبت</div>
+                    <div class="calendar-day-header">الأحد</div>
+                    <div class="calendar-day-header">الإثنين</div>
+                    <div class="calendar-day-header">الثلاثاء</div>
+                    <div class="calendar-day-header">الأربعاء</div>
+                    <div class="calendar-day-header">الخميس</div>
+                    <div class="calendar-day-header weekend">الجمعة</div>
+            `;
+
+            // Empty cells before first day
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                html += '<div></div>';
             }
 
-            return date;
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayTasks = tasks.filter(t => {
+                    const parts = t.deadline.split('-');
+                    return parseInt(parts[0]) === day;
+                });
+
+                const hasCritical = dayTasks.some(t => t.priority === 'Critical');
+                const hasHigh = dayTasks.some(t => t.priority === 'High');
+                const hasTask = dayTasks.length > 0;
+
+                let classes = ['calendar-day'];
+                if (hasTask) classes.push('has-task');
+                if (hasHigh) classes.push('has-high');
+                if (hasCritical) classes.push('has-critical');
+
+                const isToday = new Date().getDate() === day && new Date().getMonth() === month;
+                if (isToday) classes.push('today');
+
+                html += `
+                    <div class="${classes.join(' ')}" ${hasTask ? `onclick="scrollToTask('${day}-${monthNames[month].substring(0,3)}')"` : ''}>
+                        <span class="day-number">${day}</span>
+                        ${hasTask ? `<span class="task-count">${dayTasks.length} مهمة</span>` : ''}
+                        ${isToday ? '<span class="today-badge">📍</span>' : ''}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function scrollToTask(deadline) {
+            // This would scroll to the task in the list
+            showToast('الانتقال لمهام ' + deadline);
         }
 
         function addNewTask() {
