@@ -822,7 +822,252 @@
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
         }
-    </style>
+    
+        /* Organization Chart Styles */
+        .org-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        .org-level {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .org-node {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            min-width: 250px;
+            max-width: 350px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .org-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #00a896;
+        }
+
+        .org-node.main {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            color: white;
+            border-color: #1e3a5f;
+            min-width: 300px;
+        }
+
+        .org-node.main:hover {
+            border-color: #00a896;
+        }
+
+        .org-node-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .org-node.main .org-node-header {
+            border-bottom-color: rgba(255,255,255,0.2);
+        }
+
+        .org-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: linear-gradient(135deg, #00a896 0%, #028090 100%);
+            color: white;
+        }
+
+        .org-node.main .org-icon {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .org-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a5f;
+        }
+
+        .org-node.main .org-title {
+            color: white;
+            font-size: 20px;
+        }
+
+        .org-subtitle {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .org-node.main .org-subtitle {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .org-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .org-stat {
+            text-align: center;
+            flex: 1;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .org-node.main .org-stat {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .org-stat-number {
+            font-size: 22px;
+            font-weight: 800;
+            color: #00a896;
+            display: block;
+        }
+
+        .org-node.main .org-stat-number {
+            color: #00a896;
+        }
+
+        .org-stat-label {
+            font-size: 11px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .org-node.main .org-stat-label {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .org-tasks-preview {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .org-task-item {
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            border-right: 3px solid #00a896;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .org-task-item:hover {
+            background: #e9ecef;
+            transform: translateX(-3px);
+        }
+
+        .org-task-item.critical {
+            border-right-color: #dc3545;
+        }
+
+        .org-task-item.high {
+            border-right-color: #fd7e14;
+        }
+
+        .org-task-item.medium {
+            border-right-color: #ffc107;
+        }
+
+        .org-connector {
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, #00a896, transparent);
+            margin: -15px 0;
+        }
+
+        .org-connector-horizontal {
+            height: 2px;
+            background: linear-gradient(to right, #00a896, #028090);
+            margin: 0 auto;
+            width: 80%;
+        }
+
+        .org-view-all {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .org-view-all-btn {
+            background: none;
+            border: 2px solid #00a896;
+            color: #00a896;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .org-view-all-btn:hover {
+            background: #00a896;
+            color: white;
+        }
+
+        .org-node.main .org-view-all-btn {
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+        }
+
+        .org-node.main .org-view-all-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Department badge in table */
+        .dept-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .dept-badge.headquarters {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fde68a;
+        }
+
+        .dept-badge.branch {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .dept-icon {
+            font-size: 14px;
+        }
+</style>
 <base target="_blank">
 <base target="_blank">
 </head>
@@ -955,7 +1200,28 @@
             </div>
         </div>
 
-        <!-- Tasks Table Section -->
+        
+        <!-- Organization Chart Section -->
+        <div id="organization" class="content-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:15px;">
+                <h2 style="color:#1e3a5f; font-size:24px;">🏛️ الهيكل التنظيمي للهيئة</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="orgDeptFilter" onchange="renderOrgChart()" style="width:auto; min-width:200px;">
+                        <option value="all">📋 كل الإدارات</option>
+                        <option value="رئاسة الهيئة">🏛️ رئاسة الهيئة</option>
+                        <option value="فرع الإسماعيلية">🏥 فرع الإسماعيلية</option>
+                        <option value="فرع الأقصر">🏥 فرع الأقصر</option>
+                        <option value="فرع جنوب سيناء">🏥 فرع جنوب سيناء</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="renderOrgChart()">🔄 تحديث</button>
+                </div>
+            </div>
+
+            <div id="orgChartContainer" class="org-chart">
+                <!-- Org chart will be rendered here -->
+            </div>
+        </div>
+<!-- Tasks Table Section -->
         <div id="tasks" class="content-section">
             <!-- Controls -->
             <div class="controls">
@@ -1002,11 +1268,13 @@
                             <th onclick="sortTable(3)">اسم المهمة</th>
                             <th onclick="sortTable(4)">الوصف</th>
                             <th onclick="sortTable(5)">الفئة</th>
-                            <th onclick="sortTable(6)">المكلّف</th>
-                            <th onclick="sortTable(7)">الموعد النهائي</th>
-                            <th onclick="sortTable(8)">أيام متبقية</th>
-                            <th onclick="sortTable(9)">الأولوية</th>
-                            <th onclick="sortTable(10)">الحالة</th>
+                            <th onclick="sortTable(6)">الفرع</th>
+                            <th onclick="sortTable(7)">الإدارة</th>
+                            <th onclick="sortTable(8)">المكلّف</th>
+                            <th onclick="sortTable(9)">الموعد النهائي</th>
+                            <th onclick="sortTable(10)">أيام متبقية</th>
+                            <th onclick="sortTable(11)">الأولوية</th>
+                            <th onclick="sortTable(12)">الحالة</th>
                             <th>إجراءات</th>
                         </tr>
                     </thead>
@@ -1087,12 +1355,47 @@
                     <label>الوصف</label>
                     <textarea id="taskDescription"></textarea>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الفئة *</label>
+                        <select id="taskCategory" required onchange="handleCategoryChange(this)">
+                            <option value="">-- اختار أو اكتب جديد --</option>
+                        </select>
+                        <input type="text" id="taskCategoryCustom" placeholder="أو اكتب تصنيف جديد..." style="margin-top:8px; display:none;">
+                    </div>
+                    <div class="form-group">
+                        <label>الفرع</label>
+                        <select id="taskBranch">
+                            <option value="">-- اختار --</option>
+                            <option value="رئاسة الهيئة">🏛️ رئاسة الهيئة</option>
+                            <option value="فرع الإسماعيلية">🏥 فرع الإسماعيلية</option>
+                            <option value="فرع الأقصر">🏥 فرع الأقصر</option>
+                            <option value="فرع جنوب سيناء">🏥 فرع جنوب سيناء</option>
+                            <option value="فرع السويس">🏥 فرع السويس</option>
+                            <option value="فرع بورسعيد">🏥 فرع بورسعيد</option>
+                            <option value="فرع الغردقة">🏥 فرع الغردقة</option>
+                            <option value="__custom__">+ فرع جديد...</option>
+                        </select>
+                        <input type="text" id="taskBranchCustom" placeholder="أو اكتب فرع جديد..." style="margin-top:8px; display:none;">
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label>الفئة *</label>
-                    <select id="taskCategory" required onchange="handleCategoryChange(this)">
-                        <option value="">-- اختار أو اكتب جديد --</option>
+                    <label>الإدارة / القسم</label>
+                    <select id="taskDepartment">
+                        <option value="">-- اختار --</option>
+                        <option value="مكتب رئيس الهيئة">🏛️ مكتب رئيس الهيئة</option>
+                        <option value="الإدارة المالية">💰 الإدارة المالية</option>
+                        <option value="الموارد البشرية">👥 الموارد البشرية</option>
+                        <option value="الإدارة الهندسية">🔧 الإدارة الهندسية</option>
+                        <option value="إدارة الإمداد والصيدلة">💊 إدارة الإمداد والصيدلة</option>
+                        <option value="إدارة المراجعة الداخلي">📋 إدارة المراجعة الداخلي</option>
+                        <option value="الإدارة العلاجية">⚕️ الإدارة العلاجية</option>
+                        <option value="المكتب الفني">📐 المكتب الفني</option>
+                        <option value="الشئون القانونية">⚖️ الشئون القانونية</option>
+                        <option value="رضا المنتفعين">😊 رضا المنتفعين</option>
+                        <option value="__custom__">+ إدارة جديدة...</option>
                     </select>
-                    <input type="text" id="taskCategoryCustom" placeholder="أو اكتب تصنيف جديد..." style="margin-top:8px; display:none;">
+                    <input type="text" id="taskDepartmentCustom" placeholder="أو اكتب إدارة جديدة..." style="margin-top:8px; display:none;">
                 </div>
                 <div class="form-group">
                     <label>المكلف</label>
@@ -1161,6 +1464,8 @@
                             name: t.Task || '',
                             description: t.Details || '',
                             category: t.Category || '',
+                            branch: t.Branch || '',
+                            department: t.Department || '',
                             assignee: t.Assignee || '',
                             duration: 'N/A',
                             deadline: t.Deadline || '',
@@ -1220,6 +1525,8 @@
                 task: taskData.name,
                 details: taskData.description,
                 category: taskData.category,
+                branch: taskData.branch,
+                department: taskData.department,
                 assignee: taskData.assignee,
                 deadline: taskData.deadline,
                 daysLeft: taskData.daysRemaining,
@@ -1252,7 +1559,7 @@
 
         // Default data
         const defaultTasksData = [
-            {id: 1, date: "22-Apr", source: "Dr. badr", name: "Payroll and cash", description: "Dr. Enjy", category: "المالية", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
+            {id: 1, date: "22-Apr", source: "Dr. badr", name: "Payroll and cash", description: "Dr. Enjy", category: "المالية", department: "رئاسة الهيئة", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
             {id: 2, date: "23-Apr", source: "Dr. badr", name: "مكافأة عضو مجلس الإدارة د. إبراهيم فخر", description: "عن مدة ستة أشهر", category: "الاجتماعات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
             {id: 3, date: "23-Apr", source: "Dr. badr", name: "عمل template من د. علي رفعت للمخاطبات", description: "للعرض يوم الأربعاء", category: "المكتب الفني", assignee: "د. أحمد علي", duration: "30", deadline: "23-May", daysRemaining: "12", priority: "Critical", status: ""},
             {id: 4, date: "23-Apr", source: "Dr. badr", name: "موقف مشروع الأقصر م - مهندس حسن غالي", description: "", category: "الاجتماعات", assignee: "", duration: "N/A", deadline: "", daysRemaining: "", priority: "Critical", status: ""},
@@ -1506,6 +1813,8 @@
                     <td><strong>${task.name}</strong></td>
                     <td>${task.description}</td>
                     <td>${task.category}</td>
+                    <td>${task.branch ? '<span class="dept-badge branch"><span class="dept-icon">🏥</span> ' + task.branch + '</span>' : ''}</td>
+                    <td>${task.department ? '<span class="dept-badge ' + (task.department.includes('رئاسة') || task.department.includes('مدير') ? 'headquarters' : 'branch') + '"><span class="dept-icon">' + (task.department.includes('رئاسة') || task.department.includes('مدير') ? '🏛️' : '📂') + '</span> ' + task.department + '</span>' : ''}</td>
                     <td>${task.assignee}</td>
                     <td class="deadline-cell"><span class="deadline-badge ${deadlineClass}"><span class="deadline-icon">${deadlineIcon}</span> ${deadlineText}</span></td>
                     <td class="days-remaining ${daysClass}">${task.daysRemaining}</td>
@@ -1772,6 +2081,32 @@
             });
         }
 
+        function handleBranchChange(select) {
+            const customInput = document.getElementById('taskBranchCustom');
+            if (select.value === '__custom__') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+                select.required = false;
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                select.required = true;
+            }
+        }
+
+        function handleDepartmentChange(select) {
+            const customInput = document.getElementById('taskDepartmentCustom');
+            if (select.value === '__custom__') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+                select.required = false;
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                select.required = true;
+            }
+        }
+
         function handleCategoryChange(select) {
             const customInput = document.getElementById('taskCategoryCustom');
             if (select.value === '__custom__') {
@@ -1795,6 +2130,185 @@
                 e.preventDefault();
                 saveTask();
             });
+        }
+
+        // Organization Chart Rendering
+        function renderOrgChart() {
+            const container = document.getElementById('orgChartContainer');
+            const filter = document.getElementById('orgDeptFilter').value;
+
+            // Group tasks by Branch (for org chart)
+            const deptGroups = {};
+            tasksData.forEach(task => {
+                const dept = task.branch || 'غير محدد';
+                if (!deptGroups[dept]) {
+                    deptGroups[dept] = [];
+                }
+                deptGroups[dept].push(task);
+            });
+
+            let deptsToShow = Object.keys(deptGroups);
+            if (filter !== 'all') {
+                deptsToShow = deptsToShow.filter(d => d === filter);
+            }
+
+            // Separate headquarters and branches
+            const headquarters = deptsToShow.filter(d => d.includes('رئاسة') || d.includes('هيئة'));
+            const branches = deptsToShow.filter(d => !d.includes('رئاسة') && !d.includes('هيئة'));
+
+            let html = '';
+
+            // Render Headquarters
+            headquarters.forEach(dept => {
+                const tasks = deptGroups[dept];
+                const criticalCount = tasks.filter(t => t.priority === 'Critical').length;
+                const highCount = tasks.filter(t => t.priority === 'High').length;
+                const totalCount = tasks.length;
+
+                html += `
+                    <div class="org-level">
+                        <div class="org-node main">
+                            <div class="org-node-header">
+                                <div class="org-icon">🏛️</div>
+                                <div>
+                                    <div class="org-title">${dept}</div>
+                                    <div class="org-subtitle">الإدارة المركزية</div>
+                                </div>
+                            </div>
+                            <div class="org-stats">
+                                <div class="org-stat">
+                                    <span class="org-stat-number">${totalCount}</span>
+                                    <span class="org-stat-label">مهام</span>
+                                </div>
+                                <div class="org-stat">
+                                    <span class="org-stat-number" style="color:#dc3545;">${criticalCount}</span>
+                                    <span class="org-stat-label">حرجة</span>
+                                </div>
+                                <div class="org-stat">
+                                    <span class="org-stat-number" style="color:#fd7e14;">${highCount}</span>
+                                    <span class="org-stat-label">عالية</span>
+                                </div>
+                            </div>
+                            <div class="org-tasks-preview">
+                                ${tasks.slice(0, 3).map(t => `
+                                    <div class="org-task-item ${t.priority.toLowerCase()}" onclick="showTaskDetails(${t.id})">
+                                        <strong>${t.name}</strong>
+                                        <div style="font-size:11px; color:#6c757d; margin-top:2px;">
+                                            ${t.deadline ? '📅 ' + t.deadline : ''} 
+                                            ${t.assignee ? '👤 ' + t.assignee : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${tasks.length > 3 ? `
+                            <div class="org-view-all">
+                                <button class="org-view-all-btn" onclick="filterByDepartment('${dept}')">
+                                    عرض الكل (${tasks.length})
+                                </button>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Connector
+            if (headquarters.length > 0 && branches.length > 0) {
+                html += '<div class="org-connector"></div>';
+                html += '<div class="org-connector-horizontal"></div>';
+                html += '<div class="org-connector"></div>';
+            }
+
+            // Render Branches
+            html += '<div class="org-level">';
+            branches.forEach(dept => {
+                const tasks = deptGroups[dept];
+                const criticalCount = tasks.filter(t => t.priority === 'Critical').length;
+                const highCount = tasks.filter(t => t.priority === 'High').length;
+                const totalCount = tasks.length;
+
+                html += `
+                    <div class="org-node">
+                        <div class="org-node-header">
+                            <div class="org-icon">🏥</div>
+                            <div>
+                                <div class="org-title">${dept}</div>
+                                <div class="org-subtitle">فرع / إدارة</div>
+                            </div>
+                        </div>
+                        <div class="org-stats">
+                            <div class="org-stat">
+                                <span class="org-stat-number">${totalCount}</span>
+                                <span class="org-stat-label">مهام</span>
+                            </div>
+                            <div class="org-stat">
+                                <span class="org-stat-number" style="color:#dc3545;">${criticalCount}</span>
+                                <span class="org-stat-label">حرجة</span>
+                            </div>
+                            <div class="org-stat">
+                                <span class="org-stat-number" style="color:#fd7e14;">${highCount}</span>
+                                <span class="org-stat-label">عالية</span>
+                            </div>
+                        </div>
+                        <div class="org-tasks-preview">
+                            ${tasks.slice(0, 3).map(t => `
+                                <div class="org-task-item ${t.priority.toLowerCase()}" onclick="showTaskDetails(${t.id})">
+                                    <strong>${t.name}</strong>
+                                    <div style="font-size:11px; color:#6c757d; margin-top:2px;">
+                                        ${t.deadline ? '📅 ' + t.deadline : ''} 
+                                        ${t.assignee ? '👤 ' + t.assignee : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${tasks.length > 3 ? `
+                        <div class="org-view-all">
+                            <button class="org-view-all-btn" onclick="filterByDepartment('${dept}')">
+                                عرض الكل (${tasks.length})
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function showTaskDetails(id) {
+            const task = tasksData.find(t => t.id === id);
+            if (!task) return;
+
+            // Switch to tasks tab and scroll to task
+            showTab('tasks');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            document.querySelectorAll('.tab')[0].classList.remove('active');
+
+            // Highlight the task row
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#tasksTableBody tr');
+                rows.forEach(row => {
+                    if (row.cells[0].textContent == id) {
+                        row.style.background = '#fef3c7';
+                        row.scrollIntoView({behavior: 'smooth', block: 'center'});
+                        setTimeout(() => { row.style.background = ''; }, 3000);
+                    }
+                });
+            }, 300);
+        }
+
+        function filterByDepartment(dept) {
+            // Switch to tasks tab
+            showTab('tasks');
+            document.querySelectorAll('.tab')[1].classList.add('active');
+            document.querySelectorAll('.tab')[0].classList.remove('active');
+
+            // Filter by branch
+            const filtered = tasksData.filter(t => t.branch === dept);
+            renderTasks(filtered);
+
+            showToast(`تم عرض مهام: ${dept} (${filtered.length} مهمة)`);
         }
 
         function showTab(tabName) {
@@ -2011,6 +2525,8 @@
             document.getElementById('taskName').value = task.name;
             document.getElementById('taskDescription').value = task.description;
             document.getElementById('taskCategory').value = task.category;
+            document.getElementById('taskBranch').value = task.branch || '';
+            document.getElementById('taskDepartment').value = task.department || '';
             document.getElementById('taskAssignee').value = task.assignee;
             document.getElementById('taskDeadline').value = task.deadline ? convertDateToISO(task.deadline) : '';
             document.getElementById('taskPriority').value = task.priority;
@@ -2037,6 +2553,18 @@
             // Handle custom category
             if (category === '__custom__') {
                 category = document.getElementById('taskCategoryCustom').value;
+            }
+
+            let branch = document.getElementById('taskBranch').value;
+            // Handle custom branch
+            if (branch === '__custom__') {
+                branch = document.getElementById('taskBranchCustom').value;
+            }
+
+            let department = document.getElementById('taskDepartment').value;
+            // Handle custom department
+            if (department === '__custom__') {
+                department = document.getElementById('taskDepartmentCustom').value;
             }
             const assignee = document.getElementById('taskAssignee').value;
             const deadline = document.getElementById('taskDeadline').value;
@@ -2066,6 +2594,8 @@
                     name: name,
                     description: description,
                     category: category,
+                    branch: branch,
+                    department: department,
                     assignee: assignee,
                     duration: 'N/A',
                     deadline: deadline ? formatDate(deadline) : '',
