@@ -761,6 +761,7 @@
         }
     </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
     <div class="container">
@@ -782,7 +783,7 @@
                 </div>
             </div>
             <div class="header-stats">
-                <div class="stat-box">
+                <div class="stat-box" style="cursor: pointer;" onclick="syncWithSheets()" title="اضغط للمزامنة مع Google Sheets">
                     <span class="number" id="totalTasks">0</span>
                     <span class="label">إجمالي المهام</span>
                 </div>
@@ -797,6 +798,10 @@
                 <div class="stat-box">
                     <span class="number" id="overdueTasks">0</span>
                     <span class="label">متأخرة</span>
+                </div>
+                <div class="stat-box" style="cursor: pointer; background: rgba(0,168,150,0.3);" onclick="syncWithSheets()" title="مزامنة مع Google Sheets">
+                    <span style="font-size: 24px;">🔄</span>
+                    <span class="label">مزامنة</span>
                 </div>
             </div>
         </div>
@@ -1053,6 +1058,124 @@
     </div>
 
     <script>
+        // ===== Google Sheets API Integration =====
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzGeevhKLS-L5NBFU-bbWmWWMbcour5vSFVm2hVx-LiviV1X0IPdl3-rW1C_WU1L0f7lQ/exec';
+        let isApiConnected = false;
+        let apiLoadAttempted = false;
+
+        // Load tasks from Google Sheets API
+        function loadTasksFromAPI(callback) {
+            if (!API_URL || API_URL.includes('YOUR_SCRIPT_ID')) {
+                console.log('API not configured');
+                if (callback) callback(false);
+                return;
+            }
+
+            const script = document.createElement('script');
+            const callbackName = 'tasksCallback_' + Date.now();
+
+            window[callbackName] = function(data) {
+                delete window[callbackName];
+                apiLoadAttempted = true;
+
+                if (data.success && data.tasks && data.tasks.length > 0) {
+                    apiTasksData = data.tasks;
+                    isApiConnected = true;
+
+                    // Convert API format to internal format
+                    tasksData = apiTasksData.map(task => ({
+                        id: parseInt(task.ID) || 0,
+                        date: task.Date || '',
+                        source: task.Source || '',
+                        name: task.Task || '',
+                        description: task.Details || '',
+                        category: task.Category || '',
+                        assignee: task.Assignee || '',
+                        duration: 'N/A',
+                        deadline: task.Deadline || '',
+                        daysRemaining: task['Days Left'] || '',
+                        priority: task.Priority || 'Medium',
+                        status: task.Status || ''
+                    }));
+
+                    // Refresh UI
+                    populateFilters();
+                    updateStats();
+                    renderTable();
+                    if (charts.priority) updateCharts();
+                    else initializeCharts();
+
+                    showToast('تم الاتصال بـ Google Sheets ✅');
+                    if (callback) callback(true);
+                } else {
+                    console.log('API returned no tasks or error');
+                    if (callback) callback(false);
+                }
+            };
+
+            // Timeout fallback
+            setTimeout(() => {
+                if (!apiLoadAttempted) {
+                    delete window[callbackName];
+                    console.log('API load timeout');
+                    if (callback) callback(false);
+                }
+            }, 10000);
+
+            script.src = `${API_URL}?action=getTasks&callback=${callbackName}`;
+            script.onerror = function() {
+                delete window[callbackName];
+                apiLoadAttempted = true;
+                console.error('Failed to load from API');
+                if (callback) callback(false);
+            };
+
+            document.body.appendChild(script);
+        }
+
+        // Add task to Google Sheets API
+        function addTaskToAPI(taskData) {
+            const params = new URLSearchParams({
+                action: 'addTask',
+                id: taskData.id,
+                date: taskData.date,
+                source: taskData.source,
+                task: taskData.name,
+                details: taskData.description,
+                category: taskData.category,
+                assignee: taskData.assignee,
+                deadline: taskData.deadline,
+                daysLeft: taskData.daysRemaining,
+                priority: taskData.priority,
+                status: taskData.status
+            });
+
+            const script = document.createElement('script');
+            const callbackName = 'addCallback_' + Date.now();
+
+            window[callbackName] = function(data) {
+                delete window[callbackName];
+                if (data.success) {
+                    showToast('تم حفظ المهمة في Google Sheets ✅');
+                } else {
+                    showToast('خطأ في الحفظ: ' + (data.error || ''), true);
+                }
+            };
+
+            script.src = `${API_URL}?${params.toString()}&callback=${callbackName}`;
+            document.body.appendChild(script);
+        }
+
+        // Sync button handler
+        function syncWithSheets() {
+            showToast('جاري المزامنة مع Google Sheets...');
+            loadTasksFromAPI((success) => {
+                if (!success) {
+                    showToast('تعذر الاتصال، استخدام البيانات المحلية', true);
+                }
+            });
+        }
+
         // Default data
         const defaultTasksData = [
             {id: 1, date: "22-Apr", source: "Dr. badr", name: "Payroll and cash", description: "Dr. Enjy", category: "المالية", assignee: "Dr. Bader", duration: "N/A", deadline: "", daysRemaining: "", priority: "Low", status: ""},
@@ -1163,6 +1286,15 @@
             renderTable();
             initializeCharts();
             setupEventListeners();
+
+            // Try to load from Google Sheets API first
+            setTimeout(() => {
+                loadTasksFromAPI((success) => {
+                    if (!success) {
+                        console.log('Using local data');
+                    }
+                });
+            }, 500);
         }
 
         function populateFilters() {
@@ -1801,6 +1933,13 @@
 
             closeModal();
             saveTasksToStorage();
+
+            // Also save to Google Sheets if connected
+            const savedTask = currentEditId ? tasksData.find(t => t.id === currentEditId) : tasksData[tasksData.length - 1];
+            if (savedTask) {
+                addTaskToAPI(savedTask);
+            }
+
             updateStats();
             renderTable();
             updateCharts();
