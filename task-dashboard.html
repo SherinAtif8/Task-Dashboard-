@@ -1026,7 +1026,10 @@
                 </div>
                 <div class="form-group">
                     <label>الفئة *</label>
-                    <select id="taskCategory" required></select>
+                    <select id="taskCategory" required onchange="handleCategoryChange(this)">
+                        <option value="">-- اختار أو اكتب جديد --</option>
+                    </select>
+                    <input type="text" id="taskCategoryCustom" placeholder="أو اكتب تصنيف جديد..." style="margin-top:8px; display:none;">
                 </div>
                 <div class="form-group">
                     <label>المكلف</label>
@@ -1075,20 +1078,34 @@
                 if (response && response.success && response.tasks) {
                     isApiConnected = true;
                     // Convert to internal format
-                    tasksData = response.tasks.map(t => ({
-                        id: parseInt(t.ID) || 0,
-                        date: t.Date || '',
-                        source: t.Source || '',
-                        name: t.Task || '',
-                        description: t.Details || '',
-                        category: t.Category || '',
-                        assignee: t.Assignee || '',
-                        duration: 'N/A',
-                        deadline: t.Deadline || '',
-                        daysRemaining: t['Days Left'] || '',
-                        priority: t.Priority || 'Medium',
-                        status: t.Status || ''
-                    }));
+                    tasksData = response.tasks.map(t => {
+                        // Format date from Google Sheets (handles various formats)
+                        let formattedDate = t.Date || '';
+                        if (formattedDate && formattedDate.includes('GMT')) {
+                            // Convert "Sun May 10 2026 00:00:00 GMT+0300" to "10-May"
+                            const dateObj = new Date(formattedDate);
+                            if (!isNaN(dateObj)) {
+                                const day = dateObj.getDate();
+                                const month = dateObj.toLocaleDateString('en-US', {month: 'short'});
+                                formattedDate = day + '-' + month;
+                            }
+                        }
+
+                        return {
+                            id: parseInt(t.ID) || 0,
+                            date: formattedDate,
+                            source: t.Source || '',
+                            name: t.Task || '',
+                            description: t.Details || '',
+                            category: t.Category || '',
+                            assignee: t.Assignee || '',
+                            duration: 'N/A',
+                            deadline: t.Deadline || '',
+                            daysRemaining: t['Days Left'] || '',
+                            priority: t.Priority || 'Medium',
+                            status: t.Status || ''
+                        };
+                    });
 
                     // Refresh everything
                     populateFilters();
@@ -1304,6 +1321,12 @@
                 option2.textContent = cat;
                 taskCategory.appendChild(option2);
             });
+
+            // Add "Other" option for custom category
+            const otherOption = document.createElement('option');
+            otherOption.value = '__custom__';
+            otherOption.textContent = '+ تصنيف جديد...';
+            taskCategory.appendChild(otherOption);
 
             // Assignees
             const assignees = [...new Set(tasksData.map(t => t.assignee).filter(a => a))];
@@ -1635,6 +1658,19 @@
             });
         }
 
+        function handleCategoryChange(select) {
+            const customInput = document.getElementById('taskCategoryCustom');
+            if (select.value === '__custom__') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+                select.required = false;
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                select.required = true;
+            }
+        }
+
         function setupEventListeners() {
             document.getElementById('searchInput').addEventListener('input', renderTable);
             document.getElementById('categoryFilter').addEventListener('change', renderTable);
@@ -1883,7 +1919,11 @@
         function saveTask() {
             const name = document.getElementById('taskName').value;
             const description = document.getElementById('taskDescription').value;
-            const category = document.getElementById('taskCategory').value;
+            let category = document.getElementById('taskCategory').value;
+            // Handle custom category
+            if (category === '__custom__') {
+                category = document.getElementById('taskCategoryCustom').value;
+            }
             const assignee = document.getElementById('taskAssignee').value;
             const deadline = document.getElementById('taskDeadline').value;
             const priority = document.getElementById('taskPriority').value;
@@ -1965,10 +2005,20 @@
         }
 
         function formatDate(dateStr) {
+            // Handle Google Sheets date format: "Sun May 10 2026 00:00:00 GMT+0300"
+            if (dateStr && dateStr.includes('GMT')) {
+                const date = new Date(dateStr);
+                if (!isNaN(date)) {
+                    const day = date.getDate();
+                    const month = date.toLocaleDateString('en-US', {month: 'short'});
+                    return day + '-' + month;
+                }
+            }
+            // Handle normal date input
             const date = new Date(dateStr);
             const day = date.getDate();
             const month = date.toLocaleDateString('en-US', {month: 'short'});
-            return `${day}-${month}`;
+            return day + '-' + month;
         }
 
         function convertDateToISO(dateStr) {
